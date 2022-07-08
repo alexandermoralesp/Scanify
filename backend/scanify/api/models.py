@@ -2,20 +2,21 @@
 import os
 import rtree
 import random
-import dotenv
 import numpy as np
 from sqlite3 import DataError
 import matplotlib.pyplot as plt
-from .utils import euclidean_distance
+from dotenv import load_dotenv
+from utils import euclidean_distance
+import face_recognition
 # Initialize dotenv
-dotenv.dotenv_values()
+load_dotenv()
 
 # Data representation
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 # General path for LFW
-LFW_PATH = dotenv.get("LFW_PATH")
-
+LFW_PATH = os.environ.get("LFW_PATH")
+OUTPUT_FOLDER_NUMPY_BINARY = os.environ.get("OUTPUT_FOLDER_NUMPY_BINARY")
 
 """Enconding images of dataset"""
 class EncondingImages:
@@ -29,24 +30,26 @@ class EncondingImages:
         if os.path.exists("./encoding.npy"):
             self.data_enconding = np.load("./encoding.npy")
             self.data_enconding_reference = np.load("./encoding_reference.npy")
+        counter = 0
         for folder in os.listdir(LFW_PATH):
-            for file in os.listdir(os.path.join(LFW_PATH, folder)):
-                file_src = os.path.join(folder, file)
-                file_load = face_recognition.load_image_file(file_src)
-                file_encoding = face_recognition.face_encodings(file_load)
-                if len(file_encoding) > 0:
-                    # TODO: El enconding_reference guarda el id de cada imagen. Corregir para dict
-                    self.data_enconding.append(file_encoding[0])
-                    self.data_enconding_reference[file_src] = file_src
+            image_path = os.path.join(LFW_PATH,folder)
+            if counter > self.N: break
+            for file in os.listdir(image_path):
+                file_src = os.path.join(image_path,file)
+                file_img = face_recognition.load_image_file(file_src)
+                file_enconding = face_recognition.face_encodings(file_img)
+                if file_enconding != []:
+                    self.data_enconding.append(file_enconding[0])
+                    counter += 1
                 else:
-                    print("No encodings found for file: {}".format(file_src))
-            self.data_enconding = np.array(self.data_enconding)
-            # Save encodings
-            np.save(os.path.join(os.getcwd(), "encodings.npy"),
-                    self.data_enconding)
-            np.save(os.path.join(os.getcwd(), "encodings_reference.npy"),
-                    self.data_enconding_reference)
-            return self.data_enconding
+                    print(image_src, "is not working")
+                if counter % 10 == 0: print("Image processed", counter)
+            if counter > self.N: break
+        self.data_enconding = np.array(self.data_enconding)
+        # Save encodings
+        np.save(os.path.join(OUTPUT_FOLDER_NUMPY_BINARY, "encodings.npy"), self.data_enconding)
+        np.save(os.path.join(OUTPUT_FOLDER_NUMPY_BINARY, "encodings_reference.npy"), self.data_enconding_reference)
+        return self.data_enconding
 
 
 class KNN:
