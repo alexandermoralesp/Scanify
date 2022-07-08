@@ -18,8 +18,6 @@ LFW_PATH = dotenv.get("LFW_PATH")
 
 
 """Enconding images of dataset"""
-
-
 class EncondingImages:
     def __init__(self, N: int):
         self.data_enconding = []
@@ -86,14 +84,15 @@ class KNN_RTree:
         self._is_builded = False
         self._prop = rtree.index.Property()
         self.ind = rtree.index.Index(properties=self._prop)
+
     def _build(self):
         if os.path.exists("puntos.data"):
             os.remove("puntos.data")
         if os.path.exists("puntos.index"):
             os.remove("puntos.index")
         self._ind = rtree.index.Index("puntos", self._prop)
-        
-    def get(self, Q: np.ndarray, k : int):
+
+    def get(self, Q: np.ndarray, k: int):
         output = []
         if not self._is_builded:
             self._build()
@@ -103,4 +102,14 @@ class KNN_RTree:
         for p in self.ind.nearest(query, k=k):
             output.append(p)
         return output
-        
+
+
+class KD_Tree:
+    from sklearn.neighbors import KDTree
+    def __init__(self, data_enconding: np.ndarray):
+        self.data_enconding = data_enconding
+
+    def get(self, Q: np.ndarray, k):
+        tree = KDTree(self.data_enconding, leaf_size=3)
+        dist, ind = tree.query(Q, k)
+        return dist
