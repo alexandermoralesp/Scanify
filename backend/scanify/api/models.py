@@ -78,7 +78,6 @@ class KNN:
 
 
 class KNN_RTree:
-
     def __init__(self, data_encoding: np.ndarray):
         self.data_encoding = data_encoding
         self._is_builded = False
@@ -113,3 +112,9 @@ class KD_Tree:
         tree = KDTree(self.data_enconding, leaf_size=3)
         dist, ind = tree.query(Q, k)
         return dist
+
+# class PCA:
+#     def __init__(self, data_enconding: np.ndarray):
+#         self.data_enconding = data_enconding
+
+#     def get(self, Q: np.ndarray, k):
