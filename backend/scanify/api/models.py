@@ -118,11 +118,6 @@ class KD_Tree:
         pass
     def get(self,data_encoding : np.ndarray, Q: np.ndarray, k, leaf_size=3):
         tree = KDTree(data_encoding, leaf_size=leaf_size)
-        dist, ind = tree.query(Q, k)
+        q_reshaped = Q.reshape(1,-1)
+        dist, ind = tree.query(q_reshaped, k)
         return dist
-
-# class PCA:
-#     def __init__(self, data_enconding: np.ndarray):
-#         self.data_enconding = data_enconding
-
-#     def get(self, Q: np.ndarray, k):

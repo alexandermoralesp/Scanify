@@ -12,5 +12,6 @@ encoding_values = enconding_images.get()
 # print(knn.get_priority(encoding_values[0], encoding_values, 3))
 # knn_rtree = KNN_RTree()
 # print(knn_rtree.get(encoding_values[0],encoding_values, 2))
-
+# kd_rtree = KD_Tree()
+# print(kd_rtree.get(encoding_values, encoding_values[0], 2))
 
