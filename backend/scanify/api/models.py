@@ -4,10 +4,10 @@ import rtree
 import random
 import numpy as np
 from sqlite3 import DataError
-import matplotlib.pyplot as plt
 from dotenv import load_dotenv
-from utils import euclidean_distance
 import face_recognition
+from utils import euclidean_distance
+from sklearn.neighbors import KDTree
 # Initialize dotenv
 load_dotenv()
 
@@ -20,14 +20,15 @@ OUTPUT_FOLDER_NUMPY_BINARY = os.environ.get("OUTPUT_FOLDER_NUMPY_BINARY")
 
 """Enconding images of dataset"""
 class EncondingImages:
-    def __init__(self, N: int):
+    def __init__(self, N: int, type : str = "created"):
         self.data_enconding = []
         self.data_enconding_reference = dict()
         self.N = N
+        self.type = type
 
     def get(self):
         # Verifiy if encoding file exists
-        if os.path.exists("./encoding.npy"):
+        if os.path.exists("./encoding.npy") and self.type=="forced":
             self.data_enconding = np.load("./encoding.npy")
             self.data_enconding_reference = np.load("./encoding_reference.npy")
         counter = 0
@@ -42,7 +43,7 @@ class EncondingImages:
                     self.data_enconding.append(file_enconding[0])
                     counter += 1
                 else:
-                    print(image_src, "is not working")
+                    print(file_src, "is not working")
                 if counter % 10 == 0: print("Image processed", counter)
             if counter > self.N: break
         self.data_enconding = np.array(self.data_enconding)
@@ -99,7 +100,7 @@ class KNN_RTree:
         if not self._is_builded:
             self._build()
         for i in range(self.data_encoding.shape[0]):
-            self.ind.insert(i, tuple(data_enconding[i]))
+            self.ind.insert(i, tuple(self.data_enconding[i]))
         query = tuple(Q)
         for p in self.ind.nearest(query, k=k):
             output.append(p)
@@ -107,7 +108,6 @@ class KNN_RTree:
 
 
 class KD_Tree:
-    from sklearn.neighbors import KDTree
     def __init__(self, data_enconding: np.ndarray):
         self.data_enconding = data_enconding
 
