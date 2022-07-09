@@ -6,6 +6,7 @@ from rtree import Rtree
 import rtree
 import random
 import numpy as np
+import pickle
 from dotenv import load_dotenv
 import face_recognition
 from utils import euclidean_distance
@@ -20,22 +21,26 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 # General path for LFW
 LFW_PATH = os.environ.get("LFW_PATH")
 OUTPUT_FOLDER_NUMPY_BINARY = os.environ.get("OUTPUT_FOLDER_NUMPY_BINARY")
+OUTPUT_ENCODING_PATH = os.path.join(OUTPUT_FOLDER_NUMPY_BINARY, "encodings.pkl")
 
 """Enconding images of dataset"""
 class EncondingImages:
     def __init__(self, N: int, type : str = "created"):
-        self.data_enconding = []
-        self.data_enconding_reference = dict()
+        self.data_enconding = dict()
         self.N = N
         self.type = type
 
     def get(self):
         # Verifiy if encoding file exists
-        if os.path.exists(os.path.join(LFW_PATH,"./encoding.npy")) and not self.type == "forced":
-            self.data_enconding = np.load("./encoding.npy")
-            self.data_enconding_reference = np.load("./encoding_reference.npy")
+        if os.path.exists(OUTPUT_ENCODING_PATH) and self.type == "forced":
+            with open(OUTPUT_ENCODING_PATH, "rb") as f:
+                # TODO: Test Here
+                self.data_enconding = pickle.load(f)
             return self.data_enconding
+
+        # If not exists forced or previous data, process
         counter = 0
+
         for folder in os.listdir(LFW_PATH):
             image_path = os.path.join(LFW_PATH,folder)
             if counter > self.N: break
@@ -43,44 +48,45 @@ class EncondingImages:
                 file_src = os.path.join(image_path,file)
                 file_img = face_recognition.load_image_file(file_src)
                 file_enconding = face_recognition.face_encodings(file_img)
+                # If file_encoding is processed corrected
                 if file_enconding != []:
-                    self.data_enconding.append(file_enconding[0])
+                    # assign file source and encoding
+                    self.data_enconding[file] = file_enconding[0]
                     counter += 1
                 else:
                     print(file_src, "is not working")
                 if counter % 10 == 0: print("Image processed", counter)
             if counter > self.N: break
-        self.data_enconding = np.array(self.data_enconding)
+
         # Save encodings
-        np.save(os.path.join(OUTPUT_FOLDER_NUMPY_BINARY, "encodings.npy"), self.data_enconding)
-        np.save(os.path.join(OUTPUT_FOLDER_NUMPY_BINARY, "encodings_reference.npy"), self.data_enconding_reference)
+        with open(OUTPUT_ENCODING_PATH, "wb") as f:
+            pickle.dump(self.data_enconding, f)
+
         return self.data_enconding
 
 
 class KNN:
-    def __init__(self):
-        ...
-    def _range_search(self,Q, D, r):
+    def _range_search(self,Q : np.ndarray, D : dict, r : float):
         result = []
-        for i in range(len(D)):
-            dist = euclidean_distance(Q, D[i])
+        for id, row in D.items():
+            dist = euclidean_distance(Q, row)
             if dist < r:
-                result.append((i, dist))
+                result.append((id, dist))
         return result
 
-    def _priority_search(self,Q, D, k):
+    def _priority_search(self,Q : np.ndarray, D : dict, k : int):
         # TODO: Change to priority queue
         result = []
-        for i in range(len(D)):
-            dist = euclidean_distance(Q, D[i])
-            result.append((i, dist))
+        for id, row in D.items():
+            dist = euclidean_distance(Q, row)
+            result.append((id, dist))
         result.sort(key=lambda y: y[1])
         return result[:k]
 
-    def get_priority(self, Q: np.ndarray,data_encoding : np.ndarray, k: float):
+    def get_priority(self, Q: np.ndarray,data_encoding : dict, k: int):
         return self._priority_search(Q, data_encoding, k)
 
-    def get_search(self, Q: np.ndarray, data_encoding: np.ndarray, r: float):
+    def get_search(self, Q: np.ndarray, data_encoding: dict, r: float):
         return self._range_search(Q, data_encoding, r)
 
 class KNN_RTree:
