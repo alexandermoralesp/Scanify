@@ -1,13 +1,16 @@
+# .env
 # Import dependencies
 import os
 import rtree
+from rtree import Rtree
+import rtree
 import random
 import numpy as np
-from sqlite3 import DataError
 from dotenv import load_dotenv
 import face_recognition
 from utils import euclidean_distance
 from sklearn.neighbors import KDTree
+
 # Initialize dotenv
 load_dotenv()
 
@@ -28,9 +31,10 @@ class EncondingImages:
 
     def get(self):
         # Verifiy if encoding file exists
-        if os.path.exists("./encoding.npy") and self.type=="forced":
+        if os.path.exists(os.path.join(LFW_PATH,"./encoding.npy")) and not self.type == "forced":
             self.data_enconding = np.load("./encoding.npy")
             self.data_enconding_reference = np.load("./encoding_reference.npy")
+            return self.data_enconding
         counter = 0
         for folder in os.listdir(LFW_PATH):
             image_path = os.path.join(LFW_PATH,folder)
@@ -54,18 +58,17 @@ class EncondingImages:
 
 
 class KNN:
-    def __init__(self, data_enconding: np.ndarray, k: int):
-        self.data_enconding = data_enconding
-
-    def _range_search(Q, D, r):
+    def __init__(self):
+        ...
+    def _range_search(self,Q, D, r):
         result = []
         for i in range(len(D)):
             dist = euclidean_distance(Q, D[i])
             if dist < r:
                 result.append((i, dist))
-        return np.array(result)
+        return result
 
-    def _priority_search(Q, D, k):
+    def _priority_search(self,Q, D, k):
         # TODO: Change to priority queue
         result = []
         for i in range(len(D)):
@@ -74,45 +77,47 @@ class KNN:
         result.sort(key=lambda y: y[1])
         return result[:k]
 
-    def get_priority(self, Q: np.ndarray, r: float):
-        return self._priority_search(Q, self.data_enconding, r)
+    def get_priority(self, Q: np.ndarray,data_encoding : np.ndarray, k: float):
+        return self._priority_search(Q, data_encoding, k)
 
-    def get_search(self, Q: np.ndarray, r: float):
-        return self._range_search(Q, self.data_enconding, r)
-
+    def get_search(self, Q: np.ndarray, data_encoding: np.ndarray, r: float):
+        return self._range_search(Q, data_encoding, r)
 
 class KNN_RTree:
-    def __init__(self, data_encoding: np.ndarray):
-        self.data_encoding = data_encoding
+    def __init__(self, type: str = "create"):
         self._is_builded = False
-        self._prop = rtree.index.Property()
-        self.ind = rtree.index.Index(properties=self._prop)
-
-    def _build(self):
+        self._ind = None
+        self.type = type
+    def _build(self, data_encoding : np.ndarray):
         if os.path.exists("puntos.data"):
             os.remove("puntos.data")
         if os.path.exists("puntos.index"):
             os.remove("puntos.index")
-        self._ind = rtree.index.Index("puntos", self._prop)
+        prop = rtree.index.Property()
+        prop.dimension = 128
+        prop.buffering_capacity = 3
+        prop.dat_extension = "data"
+        prop.idx_extension = "index"
+        self._ind = rtree.index.Index("puntos", properties=prop)
+        for i in range(data_encoding.shape[0]):
+            self._ind.insert(i, tuple(data_encoding[i]))
 
-    def get(self, Q: np.ndarray, k: int):
+    def get(self,Q: np.ndarray,data_encoding : np.ndarray, k: int):
         output = []
-        if not self._is_builded:
-            self._build()
-        for i in range(self.data_encoding.shape[0]):
-            self.ind.insert(i, tuple(self.data_enconding[i]))
+        if not self._is_builded or self.type == "create":
+            self._build(data_encoding)
+            self._is_builded = True
         query = tuple(Q)
-        for p in self.ind.nearest(query, k=k):
+        for p in self._ind.nearest(query, num_results=k):
             output.append(p)
+        # print("First: ", self._ind.bounds[1])
         return output
 
-
 class KD_Tree:
-    def __init__(self, data_enconding: np.ndarray):
-        self.data_enconding = data_enconding
-
-    def get(self, Q: np.ndarray, k):
-        tree = KDTree(self.data_enconding, leaf_size=3)
+    def __init__(self):
+        pass
+    def get(self,data_encoding : np.ndarray, Q: np.ndarray, k, leaf_size=3):
+        tree = KDTree(data_encoding, leaf_size=leaf_size)
         dist, ind = tree.query(Q, k)
         return dist
 
