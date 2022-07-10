@@ -8,6 +8,7 @@ from . import api
 def scanify_app(test_config = None):
     # Declare main app
     scanify = Flask(__name__, instance_relative_config=True)
+    scanify.config["UPLOAD_FOLDER"] = os.path.join(scanify.root_path, "uploads")
     @scanify.get("/")
     def index():
         return "<h1> Hello index </h1>"
