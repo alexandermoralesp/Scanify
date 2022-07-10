@@ -23,6 +23,12 @@ LFW_PATH = os.environ.get("LFW_PATH")
 OUTPUT_FOLDER_NUMPY_BINARY = os.environ.get("OUTPUT_FOLDER_NUMPY_BINARY")
 OUTPUT_ENCODING_PATH = os.path.join(OUTPUT_FOLDER_NUMPY_BINARY, "encodings.pkl")
 
+def enconding_image(file_img):
+    file_encoding = face_recognition.face_encodings(file_img)
+    if file_encoding != []:
+        return file_encoding[0]
+    raise Exception("No enconding processed")
+
 """Enconding images of dataset"""
 class EncondingImages:
     def __init__(self, N: int, type : str = "created"):
@@ -32,7 +38,7 @@ class EncondingImages:
 
     def get(self):
         # Verifiy if encoding file exists
-        if os.path.exists(OUTPUT_ENCODING_PATH) and self.type == "forced":
+        if os.path.exists(OUTPUT_ENCODING_PATH) and self.type != "created":
             with open(OUTPUT_ENCODING_PATH, "rb") as f:
                 # TODO: Test Here
                 self.data_enconding = pickle.load(f)
