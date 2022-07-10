@@ -129,8 +129,15 @@ class KNN_RTree:
 class KD_Tree:
     def __init__(self):
         pass
-    def get(self,data_encoding : np.ndarray, Q: np.ndarray, k, leaf_size=3):
-        tree = KDTree(data_encoding, leaf_size=leaf_size)
+    def get(self,data_encoding : dict, Q: np.ndarray, k, leaf_size=3):
+        output = []
+        keys = list(data_encoding.keys())
+        enconding = list(data_encoding.values())
+        tree = KDTree(enconding, leaf_size=leaf_size)
         q_reshaped = Q.reshape(1,-1)
         dist, ind = tree.query(q_reshaped, k)
-        return dist
+        for indexes in ind[0]:
+            output.append(keys[indexes])
+        # print("Dist: ", dist)
+        # print("Ind: ", ind)
+        return output
