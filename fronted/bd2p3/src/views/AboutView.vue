@@ -12,9 +12,25 @@
         <button v-on:click="deleted()">X</button>
       </div>
       <div class="form-input">
-        <label for="priority" class="izq">Tipo de b&uacute;squeda</label>
-        <select name="" id="priority" v-model="datos.type" class="der">
+        <label for="priority" class="izq"
+          >M&eacute;todo de b&uacute;squeda</label
+        >
+        <select
+          name=""
+          id="priority"
+          v-model="datos.metodo"
+          class="der"
+          @change="opcion()"
+        >
           <option v-for="opcion in opciones" :key="opcion.id">
+            {{ opcion.name }}
+          </option>
+        </select>
+      </div>
+      <div class="form-input" v-if="datos.metodo === 'sequential'">
+        <label for="type" class="izq">Tipo de b&uacute;squeda</label>
+        <select name="" id="type" v-model="datos.type" class="der">
+          <option v-for="opcion in tipos" :key="opcion.id">
             {{ opcion.name }}
           </option>
         </select>
@@ -50,16 +66,22 @@ export default {
     return {
       submited: false,
       success: false,
+      metodo: null,
       datos: {
         image: new Image(),
-        type: null,
+        ratio: null,
+        type: "range",
         cantidad: null,
       },
-      imagenes: null,
+      imagenes: [],
       opciones: [
         { name: "sequential", id: 1 },
         { name: "knn-highd", id: 2 },
         { name: "knn-rtree", id: 3 },
+      ],
+      tipos: [
+        { name: "range", id: 1 },
+        { name: "priority", id: 2 },
       ],
     };
   },
@@ -71,23 +93,47 @@ export default {
     issubmited() {
       this.submited = true;
       let formData = new FormData();
-      formData.append("text", this.datos.type);
+      formData.append("type", this.datos.type);
+      formData.append("img_filname", this.datos.image);
       formData.append("cantidad", this.datos.cantidad);
-      formData.append("photo", this.datos.image);
-      fetch("</" + this.datos.type + "/data?=formData>", {
-        method: "GET",
+      formData.append("ratio", this.datos.ratio);
+      fetch("</" + this.metodo + ">", {
+        method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "multipart/form-data",
         },
+        body: formData,
       }).then(
         function (response) {
-          if (response.status != 201) {
+          if (response.status != 200) {
             this.fetchError = response.status;
+            this.submited = null;
           } else {
             response.json().then(
               function (data) {
-                this.imagenes = data;
+                for (let img of data){
+                  let cont = 0;
+                  let route = '';
+                  let imagen_ = {};
+                  for(let car of img){
+                    if (car != '_'){
+                      route += car;
+                    }
+                    else{
+                      if(cont == 0){
+                        cont ++;
+                      }
+                      else {
+                        imagen_["carpeta"] = route;
+                        imagen_["cont"] = img;
+                        this.imagenes.append(imagen_);
+                        break;
+                      }
+                    }
+                  }
+                }
+                this.success = true;
               }.bind(this)
             );
           }
@@ -96,14 +142,6 @@ export default {
     },
     handleUpload(files) {
       this.datos.image = files[0];
-    },
-    saveProductImage() {
-      let formData = new FormData();
-      formData.append("text", this.datos.type);
-      formData.append("cantidad", this.datos.cantidad);
-      formData.append("photo", this.datos.image);
-
-      // Send here
     },
   },
 };
