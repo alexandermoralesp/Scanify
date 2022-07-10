@@ -8,6 +8,7 @@ encoding_values : dict = enconding_images.get()
 # print(encoding_values)
 """KNN Range Search Testing"""
 # knn = KNN()
+# 
 query = encoding_values.get("Boris_Trajkovski_0001.jpg")
 # print(knn.get_search(query, encoding_values, 1))
 # print(knn.get_priority(query, encoding_values, 2))

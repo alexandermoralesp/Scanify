@@ -46,7 +46,6 @@ class EncondingImages:
 
         # If not exists forced or previous data, process
         counter = 0
-
         for folder in os.listdir(LFW_PATH):
             image_path = os.path.join(LFW_PATH,folder)
             if counter > self.N: break
