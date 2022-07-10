@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 import face_recognition
 from utils import euclidean_distance
 from sklearn.neighbors import KDTree
+import heapq
 
 # Initialize dotenv
 load_dotenv()
@@ -64,6 +65,22 @@ class EncondingImages:
 
         return self.data_enconding
 
+class priority_tuple:
+    def __init__(self, _id, _dist) -> None:
+        self.id = _id
+        self.dist = _dist
+    def __lt__(self, ot):
+        return self.dist < ot.dist
+    def __le__(self, ot):
+        return self.dist <= ot.dist
+    def __eq__(self, ot):
+        return self.dist == ot.dist
+    def __ne__(self, ot):
+        return self.dist != ot.dist
+    def __gt__(self, ot):
+        return self.dist > ot.dist
+    def __ge__(self, ot):
+        return self.dist >= ot.dist
 
 class KNN:
     def _range_search(self,Q : np.ndarray, D : dict, r : float):
@@ -79,8 +96,8 @@ class KNN:
         result = []
         for id, row in D.items():
             dist = euclidean_distance(Q, row)
-            result.append((id, dist))
-        result.sort(key=lambda y: y[1])
+            heapq.heappush(result, priority_tuple(id, dist)) # result.append((id, dist))
+        # result.sort(key=lambda y: y[1])
         return result[:k]
 
     def get_priority(self, Q: np.ndarray,data_encoding : dict, k: int):
@@ -129,13 +146,26 @@ class KNN_RTree:
 class KD_Tree:
     def __init__(self):
         pass
-    def get(self,data_encoding : dict, Q: np.ndarray, k, leaf_size=3):
+    def get_knn(self,data_encoding : dict, Q: np.ndarray, k, leaf_size=3):
         output = []
         keys = list(data_encoding.keys())
         enconding = list(data_encoding.values())
         tree = KDTree(enconding, leaf_size=leaf_size)
         q_reshaped = Q.reshape(1,-1)
         dist, ind = tree.query(q_reshaped, k)
+        for indexes in ind[0]:
+            output.append(keys[indexes])
+        # print("Dist: ", dist)
+        # print("Ind: ", ind)
+        return output
+    
+    def get_radius(self,data_encoding : dict, Q: np.ndarray, r, leaf_size=3):
+        output = []
+        keys = list(data_encoding.keys())
+        enconding = list(data_encoding.values())
+        tree = KDTree(enconding, leaf_size=leaf_size)
+        q_reshaped = Q.reshape(1,-1)
+        ind = tree.query_radius(q_reshaped, r)
         for indexes in ind[0]:
             output.append(keys[indexes])
         # print("Dist: ", dist)
