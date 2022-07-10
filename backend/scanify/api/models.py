@@ -94,7 +94,7 @@ class KNN_RTree:
         self._is_builded = False
         self._ind = None
         self.type = type
-    def _build(self, data_encoding : np.ndarray):
+    def _build(self, data_encoding : dict):
         if os.path.exists("puntos.data"):
             os.remove("puntos.data")
         if os.path.exists("puntos.index"):
@@ -105,18 +105,25 @@ class KNN_RTree:
         prop.dat_extension = "data"
         prop.idx_extension = "index"
         self._ind = rtree.index.Index("puntos", properties=prop)
-        for i in range(data_encoding.shape[0]):
-            self._ind.insert(i, tuple(data_encoding[i]))
+        for i, value in enumerate(data_encoding.values()):
+        # for i in range(data_encoding.shape[0]):
+            # print("Key: ", key)
+            # print("Value: ", value)
+            self._ind.insert(i, tuple(value))
 
-    def get(self,Q: np.ndarray,data_encoding : np.ndarray, k: int):
+    def get(self,Q: np.ndarray,data_encoding : dict, k: int):
         output = []
-        if not self._is_builded or self.type == "create":
-            self._build(data_encoding)
-            self._is_builded = True
+        keys = list(data_encoding.keys())
+        self._build(data_encoding=data_encoding)
+        # if not self._is_builded or self.type == "create":
+        #     self._build(data_encoding)
+        #     self._is_builded = True
         query = tuple(Q)
         for p in self._ind.nearest(query, num_results=k):
-            output.append(p)
-        # print("First: ", self._ind.bounds[1])
+            # TODO: Verify if self._ind.bounds is correct
+            output.append((keys[p], self._ind.bounds[p]))
+            # output.append(p)
+        # # print("First: ", self._ind.bounds[1])
         return output
 
 class KD_Tree:
