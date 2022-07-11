@@ -1,5 +1,5 @@
 <h1 align="center">
-  <br>
+  <img src="img/logo.png">
   <br>
   Proyecto 2 de Base de Datos 2
   <br>
@@ -11,6 +11,8 @@
   <img src="https://img.shields.io/badge/CMake-%23008FBA.svg?style=for-the-badge&logo=cmake&logoColor=white">
   <img src="https://img.shields.io/badge/Notion-%23000000.svg?style=for-the-badge&logo=notion&logoColor=white">
 </p>
+
+# Enlace a video: https://youtu.be/DqkvspeH_vc
 <!-- 
 TODO: colocar el gif
 <h1 align="center">
@@ -32,7 +34,6 @@ TODO: colocar el gif
 | Creación de algoritmos Secuenciales, RTree, KDTree. Creación de experimentos para probar efectivdad                                                                                 | Alexander Morales |      |
 | Mapeo de los algoritmos a una API, diseño de Frontend empleando VUE| Luis Gutierrez    |      |
 
-# Enlace a video: 
 
 ## Librerías utilizadas
 
