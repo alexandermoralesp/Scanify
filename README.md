@@ -26,6 +26,12 @@ TODO: colocar el gif
 | Ugarte Quispe, Grover     | 202020159        | 100%            |
 | Gutierrez Guanilo, Luis   | 202010074        | 100%            |
 
+| Lista de actividades realizadas                                                                                                                                                                | Responsable       | Nota |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|------|
+| Documentación del proyecto, edición de video, procesamiento e interpretación de resultados                                                                                                | Grover Ugarte     |      |
+| Creación de algoritmos Secuenciales, RTree, KDTree. Creación de experimentos para probar efectivdad                                                                                 | Alexander Morales |      |
+| Mapeo de los algoritmos a una API, diseño de Frontend empleando VUE| Luis Gutierrez    |      |
+
 # Enlace a video: 
 
 ## Librerías utilizadas
@@ -320,3 +326,9 @@ Podemos apreciar lo siguiente:
     2. Rtree
     3. Secuencial
 - Se reitera el hecho de que la búsqueda secuencial se favorece al tener una cantidad de elementos (máximo 128000) favorabl. No obstante en un entorno real, la cantidad de elementos (imágenes) supera exponencialmente a la utilizada en la experimentación. De esa forma justificando la creación del RTree y KDTree.
+
+## Enlaces Bibliográficos
+
+- <a href="https://www.baeldung.com/cs/k-nearest-neighbors">k-Nearest Neighbors and High Dimensional Data </a>
+- <a href="https://bib.dbvis.de/uploadedFiles/190.pdf"> The X-tree: An Index Structure for High-Dimensional Data</a>
+- <a href="https://ieeexplore.ieee.org/abstract/document/8690508">An Advanced k Nearest Neighbor Classification Algorithm Based on KD-tree</a>
