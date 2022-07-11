@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 import face_recognition
 from utils import euclidean_distance
 from sklearn.neighbors import KDTree
-
+import faiss
 # Initialize dotenv
 load_dotenv()
 
@@ -146,3 +146,15 @@ class KD_Tree:
         # print("Dist: ", dist)
         # print("Ind: ", ind)
         return output
+class Faiss:
+    def __init__(self):
+        self._is_build = False
+    def _build(self, enconding : np.ndarray):
+        self.index = index = faiss.IndexFlatL2(d)
+        self.index.add(encoding)
+        self._is_build = True
+    def get(self, query, enconding, k = 8):
+        if not self._is_build():
+            self._build(enconding)
+        D, I = index.search(query, k)
+        return I
