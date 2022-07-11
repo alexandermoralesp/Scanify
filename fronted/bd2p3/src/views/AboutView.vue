@@ -12,29 +12,29 @@
         <button v-on:click="deleted()">X</button>
       </div>
       <div class="form-input">
-        <label for="priority" class="izq"
-          >M&eacute;todo de b&uacute;squeda</label
-        >
-        <select
-          name=""
-          id="priority"
-          v-model="datos.metodo"
-          class="der"
-          @change="opcion()"
-        >
+        <label for="priority" class="izq">M&eacute;todo de b&uacute;squeda</label>
+        <select name="" id="priority" v-model="datos.metodo" class="der">
           <option v-for="opcion in opciones" :key="opcion.id">
             {{ opcion.name }}
           </option>
         </select>
       </div>
       <div class="form-input" v-if="datos.metodo === 'sequential'">
-        <label for="type" class="izq">Tipo de b&uacute;squeda</label>
-        <select name="" id="type" v-model="datos.type" class="der">
-          <option v-for="opcion in tipos" :key="opcion.id">
+        <label for="priority" class="izq">Tipo de b&uacute;squeda</label>
+        <select name="" id="priority" v-model="datos.type" class="der">
+          <option v-for="opcion in opciones" :key="opcion.id">
             {{ opcion.name }}
           </option>
         </select>
       </div>
+      <div class="form-input2">
+        <input
+          type="number"
+          key="ratio"
+          id="ratio"
+          placeholder="ratio"
+          v-model="datos.ratio"
+        />
       <div class="form-input2">
         <input
           type="number"
@@ -51,11 +51,14 @@
     <div v-if="submited === true && success === false">
       <p>Searching ...</p>
     </div>
+    <div class="contenido">
     <div v-if="success === true">
       <div v-for="imagen in imagenes" :key="imagen.id">
         <img
-          :src="require(`@/assets/images/${imagen.id + imagen.extension}`)"
+          :src="require(`../../backend/lwd/${imagen.carpeta}/${imagen.cont}`)"
         />
+        <p>{{ imagen.carpeta }}</p>
+      </div>
       </div>
     </div>
   </div>
@@ -69,9 +72,9 @@ export default {
       metodo: null,
       datos: {
         image: new Image(),
-        ratio: null,
         type: "range",
         cantidad: null,
+        ratio: null,
       },
       imagenes: [],
       opciones: [
@@ -82,7 +85,7 @@ export default {
       tipos: [
         { name: "range", id: 1 },
         { name: "priority", id: 2 },
-      ],
+      ]
     };
   },
   methods: {
@@ -94,46 +97,31 @@ export default {
       this.submited = true;
       let formData = new FormData();
       formData.append("type", this.datos.type);
-      formData.append("img_filname", this.datos.image);
+      formData.append("img_filename", this.datos.image);
       formData.append("cantidad", this.datos.cantidad);
       formData.append("ratio", this.datos.ratio);
-      fetch("</" + this.metodo + ">", {
-        method: "POST",
+      fetch("</" + this.datos.metodo + "/data?=formData>", {
+        method: "GET",
         headers: {
           Accept: "application/json",
           "Content-Type": "multipart/form-data",
         },
-        body: formData,
       }).then(
         function (response) {
           if (response.status != 200) {
             this.fetchError = response.status;
-            this.submited = null;
           } else {
             response.json().then(
               function (data) {
-                for (let img of data){
-                  let cont = 0;
-                  let route = '';
-                  let imagen_ = {};
-                  for(let car of img){
-                    if (car != '_'){
-                      route += car;
-                    }
-                    else{
-                      if(cont == 0){
-                        cont ++;
-                      }
-                      else {
-                        imagen_["carpeta"] = route;
-                        imagen_["cont"] = img;
-                        this.imagenes.append(imagen_);
-                        break;
-                      }
-                    }
-                  }
+                for(let img of data){
+                  let route = "";
+                  let imagen_={};
+                  let aux = img.name.split("_");
+                  route = aux[0] + "_" + aux[1];
+                  imagen_["carpeta"] = route;
+                  imagen_["cont"] = img.name;
+                  this.imagenes.push(imagen_);
                 }
-                this.success = true;
               }.bind(this)
             );
           }
@@ -150,6 +138,7 @@ export default {
 .about {
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 .form {
   background-color: rgb(0, 228, 161);
@@ -164,9 +153,9 @@ export default {
 }
 .form-input {
   background-color: rgba(170, 223, 254, 0.6);
-  margin-left: 2%;
-  margin-right: 2%;
-  width: 30%;
+  margin-left: 1%;
+  margin-right: 1%;
+  width: 34%;
   border-radius: 15px;
 }
 .form-input2 {
