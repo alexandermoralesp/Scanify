@@ -12,7 +12,6 @@
   <img src="https://img.shields.io/badge/Notion-%23000000.svg?style=for-the-badge&logo=notion&logoColor=white">
 </p>
 
-# Enlace a video: https://youtu.be/DqkvspeH_vc
 <!-- 
 TODO: colocar el gif
 <h1 align="center">
