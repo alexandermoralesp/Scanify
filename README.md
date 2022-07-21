@@ -22,17 +22,11 @@ TODO: colocar el gif
 
 ## Integrantes
 
-| Apellidos y Nombres       | Código de alumno | % Participación |
-|---------------------------|------------------|-----------------|
-| Morales Panitz, Alexander | 202020195        | 100%            |
-| Ugarte Quispe, Grover     | 202020159        | 100%            |
-| Gutierrez Guanilo, Luis   | 202010074        | 100%            |
-
-| Lista de actividades realizadas                                                                                                                                                                | Responsable       | Nota |
-|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|------|
-| Documentación del proyecto, edición de video, procesamiento e interpretación de resultados                                                                                                | Grover Ugarte     |      |
-| Creación de algoritmos Secuenciales, RTree, KDTree. Creación de experimentos para probar efectivdad                                                                                 | Alexander Morales |      |
-| Mapeo de los algoritmos a una API, diseño de Frontend empleando VUE| Luis Gutierrez    |      |
+| Apellidos y Nombres       |
+|---------------------------|
+| Morales Panitz, Alexander |        
+| Ugarte Quispe, Grover     |           
+| Gutierrez Guanilo, Luis   |
 
 
 ## Librerías utilizadas
