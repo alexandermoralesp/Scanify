@@ -1,7 +1,7 @@
 <h1 align="center">
   <img src="img/logo.png">
   <br>
-  Proyecto 2 de Base de Datos 2
+  Scanify
   <br>
 </h1>
 <p align="center">
